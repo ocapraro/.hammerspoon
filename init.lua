@@ -1,8 +1,9 @@
+hs = hs
 local padding = 12
 local ok,result = hs.applescript('tell Application "Finder" to get bounds of window of desktop')
 local screenHeight =  result[4]-25-2*padding
 local screenWidth =  result[3]-2*padding
-local secondaryApps = 0
+local secondaryApps = (hs.application.get("Trello") and 1 or 0)+(hs.application.get("MongoDB Compass") and 1 or 0)
 local laptopScreen = "C34H89x"
 local terminalWindows = hs.application.get("Terminal"):allWindows()
 
