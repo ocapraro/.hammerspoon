@@ -216,7 +216,7 @@ end)
 
 -- Open Finder
 hs.hotkey.bind({"alt", "ctrl"}, "F", function()
-  hs.application.get("Finder"):setFrontmost()
+  hs.application.get("Finder"):activate()
 end)
 
 -- Tests
