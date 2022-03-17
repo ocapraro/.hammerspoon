@@ -131,13 +131,22 @@ local function applicationWatcher(appName, eventType, appObject)
     if (appName == "Finder") then
       if (getDesktop()==2) then
         -- Reload Layout
-        hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,(#terminalWindows-1)/#terminalWindows)}})
+        if (secondaryApps==0) then
+          hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,(#terminalWindows-1)/#terminalWindows)}})
+        else
+          hs.layout.apply(SecondaryAppCodeLayout)
+        end
       end
-    elseif (appName == "Terminal") then
+    elseif (appName == "Terminal" or appName == "Trello" or appName == "MongoDB Compass") then
       -- Bring all Terminal windows forward when one gets activated
       terminalWindows = hs.application.get("Terminal"):allWindows()
-      hs.application.get("Terminal"):selectMenuItem({"Window", "Bring All to Front"})
-      hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,1/#terminalWindows)}})
+      if (secondaryApps==0) then
+        hs.application.get("Terminal"):selectMenuItem({"Window", "Bring All to Front"})
+        hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,1/#terminalWindows)}})
+      else
+        hs.application.get("Terminal"):setFrontmost(true)
+        hs.layout.apply(SecondaryAppCodeLayout)
+      end
     end
   end
 end
