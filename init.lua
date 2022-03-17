@@ -137,16 +137,16 @@ local function applicationWatcher(appName, eventType, appObject)
           hs.layout.apply(SecondaryAppCodeLayout)
         end
       end
-    elseif (appName == "Terminal" or appName == "Trello" or appName == "MongoDB Compass") then
+    elseif (appName == "Terminal") then
       -- Bring all Terminal windows forward when one gets activated
       terminalWindows = hs.application.get("Terminal"):allWindows()
       if (secondaryApps==0) then
         hs.application.get("Terminal"):selectMenuItem({"Window", "Bring All to Front"})
         hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,1/#terminalWindows)}})
-      else
-        hs.application.get("Terminal"):setFrontmost(true)
-        hs.layout.apply(SecondaryAppCodeLayout)
       end
+    elseif (appName == "Trello" or appName == "MongoDB Compass") then
+      hs.application.get("Finder"):hide()
+      hs.layout.apply(SecondaryAppCodeLayout)
     end
   end
 end
@@ -183,7 +183,7 @@ local mainLoop = hs.timer.new(0.1, function()
       if (not(#v:allWindows()==lastState[i][2])) then
         if (v:name()=="Terminal") then
           reloadTerminalLayout()
-          hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,1/#terminalWindows)}})
+          -- hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,1/#terminalWindows)}})
         elseif (v:name()=="Google Chrome") then
           if (#{hs.window.find("Google Chrome")}>1 and not(chromeExpanded)) then
             chromeExpanded = true
