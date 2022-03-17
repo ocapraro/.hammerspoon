@@ -228,6 +228,27 @@ hs.hotkey.bind({"alt", "ctrl"}, "F", function()
   hs.application.get("Finder"):activate()
 end)
 
+-- Popout Chrome Tab
+hs.hotkey.bind({"alt", "ctrl"}, "C", function()
+  if (getDesktop() == 3 or getDesktop() == 4) then
+    local urlSucceded, url = hs.applescript('tell application "Google Chrome" to tell active tab of window 1 to get URL')
+    hs.applescript('tell application "Google Chrome" to tell active tab of window 1 to close')
+    hs.applescript('tell application "Google Chrome" to make new window')
+    hs.applescript('tell application "Google Chrome" to open location "' .. url .. '"')
+  end
+end)
+
+-- Return Chrome Tab
+hs.hotkey.bind({"alt", "ctrl"}, "X", function()
+  if (getDesktop() == 3 or getDesktop() == 4) then
+    local urlSucceded, url = hs.applescript('tell application "Google Chrome" to tell active tab of window 1 to get URL')
+    hs.applescript('tell application "Google Chrome" to tell active tab of window 1 to close')
+    -- hs.applescript('tell application "Google Chrome" to make new window')
+    sleep(0.1)
+    hs.applescript('tell application "Google Chrome" to tell window 1 to open location "' .. url .. '"')
+  end
+end)
+
 -- Tests
 hs.hotkey.bind({"alt", "ctrl"}, "T", function()
   -- hs.alert.show(hs.window.focusedWindow())

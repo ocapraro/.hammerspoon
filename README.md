@@ -4,3 +4,5 @@ what I use to manage my Mac windows.
 # Keybings
 - ``ctrl + alt + R `` reloads the config
 - ``ctrl + alt + F `` focuses on the nearest finder window
+- ``ctrl + alt + C `` pops out the current chrome tab
+- ``ctrl + alt + X `` returns the current chrome tab
