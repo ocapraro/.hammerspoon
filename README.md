@@ -1,3 +1,4 @@
+![programming enviroment](./resources/code_screenshot.png)
 # [Hammerspoon](https://github.com/Hammerspoon/hammerspoon)
 what I use to manage my Mac windows.
 # Keybings
