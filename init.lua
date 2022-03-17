@@ -4,17 +4,17 @@ local ok,result = hs.applescript('tell Application "Finder" to get bounds of win
 local screenHeight =  result[4]-25-2*padding
 local screenWidth =  result[3]-2*padding
 local secondaryApps = (hs.application.get("Trello") and 1 or 0)+(hs.application.get("MongoDB Compass") and 1 or 0)
-local laptopScreen = "C34H89x"
+local laptopScreen = hs.screen.allScreens()[1]:name()
 local terminalWindows = hs.application.get("Terminal"):allWindows()
 
 -- --------
 -- Layouts:
 -- --------
 
-function Rect(x,y,w,h,b,l)
+function Rect(x,y,w,h,b,r)
   b=b or false
-  l=l or false
-  return hs.geometry.rect(screenWidth*x+padding+(l and padding or 0), screenHeight*y+padding+25, screenWidth*w-(l and padding or 0), screenHeight*h-((not b) and padding or 0))
+  r=r or false
+  return hs.geometry.rect(screenWidth*x+padding+(r and padding or 0), screenHeight*y+padding+25, screenWidth*w-(r and padding or 0), screenHeight*h-((not b) and padding or 0))
 end
 
 if (screenWidth>=3000) then
@@ -52,10 +52,17 @@ end
 -- ----------
 
 local function getDesktop()
-  local discriminators = {"Messages","Code"}
+  local discriminators = {"Messages","Code","Google Chrome","Google Chrome"}
   for i, v in ipairs(discriminators) do
     if (#hs.application.get(v):allWindows()>0) then
-      return i
+      if (not(v=="Google Chrome")) then
+        return i
+      end
+      if (string.find(tostring(hs.application.get(v):allWindows()[1]),"(Person 1)") and true or false) then
+        return 3
+      else
+        return 4
+      end
     end
   end
 end
@@ -64,6 +71,14 @@ local clock = os.clock
 local function sleep(n)  -- seconds
   local t0 = clock()
   while clock() - t0 <= n do end
+end
+
+function Split(s, delimiter)
+  result = {};
+  for match in (s..delimiter):gmatch("(.-)"..delimiter) do
+      table.insert(result, match);
+  end
+  return result;
 end
 
 local function reloadTerminalLayout()
@@ -130,6 +145,63 @@ local appWatcher = hs.application.watcher.new(applicationWatcher)
 appWatcher:start()
 -- Music Mode
 
+-- ------
+-- Loops:
+-- ------
+
+local lastState = {}
+local lastDesktop = getDesktop()
+local chromeExpanded = false
+local mainLoop = hs.timer.new(0.1, function()
+  local desktop = getDesktop()
+  if (not(desktop == lastDesktop)) then
+    print("--------------------------")
+    print("Desktop: ", desktop)
+    if (#{hs.window.find("Google Chrome")}>1) then
+      chromeExpanded = true
+    else
+      chromeExpanded = false
+    end
+    print("Crome Expanded: ", chromeExpanded)
+  end
+  lastDesktop = desktop
+
+	local state = {}
+  local apps = {hs.application.find("")}
+  for i, v in ipairs(apps) do
+    -- table.insert(state,#v:allWindows())
+    if (#lastState>=i) then
+      if (not(#v:allWindows()==lastState[i][2])) then
+        if (v:name()=="Terminal") then
+          reloadTerminalLayout()
+          hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,1/#terminalWindows)}})
+        elseif (v:name()=="Google Chrome") then
+          if (#{hs.window.find("Google Chrome")}>1 and not(chromeExpanded)) then
+            chromeExpanded = true
+            local chromeWindows = hs.application.get("Google Chrome"):allWindows()
+            local chromeLayout = {}
+            for ii, vv in pairs(chromeWindows) do
+              table.insert(chromeLayout,{"Google Chrome", vv, laptopScreen, nil, nil, Rect((#chromeWindows-ii)/#chromeWindows,0,1/#chromeWindows,1,true,((ii==1) and true or false))})
+            end
+            hs.layout.apply(chromeLayout)
+          elseif (#{hs.window.find("Google Chrome")}==1) then
+            chromeExpanded = false
+            local size = tostring(hs.window.find("Google Chrome"):size())
+            local sizeTable = Split(string.sub(size,18,#size-1),",")
+            if (math.abs(screenHeight-tonumber(sizeTable[2])+2*padding)>0 or math.abs(screenWidth-tonumber(sizeTable[1])+2*padding)>0) then
+              hs.layout.apply({{"Google Chrome", nil, laptopScreen, hs.layout.maximized, nil, nil}})
+            end
+          end
+        end
+      end
+    end
+    table.insert(state,{v:name(),#v:allWindows()})
+  end
+  for i, v in pairs(state) do
+    lastState[i] = {v[1],v[2]}
+  end
+end)
+
 
 -- --------
 -- HotKeys:
@@ -138,6 +210,7 @@ appWatcher:start()
 -- Reload
 hs.hotkey.bind({"alt", "ctrl"}, "R", function()
   appWatcher:stop()
+  mainLoop:stop()
   hs.reload()
 end)
 
@@ -149,43 +222,50 @@ end)
 -- Tests
 hs.hotkey.bind({"alt", "ctrl"}, "T", function()
   -- hs.alert.show(hs.window.focusedWindow())
-  hs.alert.show(getDesktop())
+  -- hs.alert.show(getDesktop())
 end)
 
 -- -----------------------------
 -- Application Specific HotKeys:
 -- -----------------------------
 
--- Open Terminal window
-local newTerminal = hs.hotkey.new({"cmd"}, "N", function()
-  hs.applescript('tell application "Terminal" to do script "" activate')
-  reloadTerminalLayout()
-  hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,1/#terminalWindows)}})
-end)
+-- -- Open Terminal window
+-- local newTerminal = hs.hotkey.new({"cmd"}, "N", function()
+--   hs.applescript('tell application "Terminal" to do script "" activate')
+--   reloadTerminalLayout()
+--   hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,1/#terminalWindows)}})
+-- end)
 
--- Close Terminal window
-local closeTerminal = hs.hotkey.new({"cmd"}, "W", function()
-  hs.applescript('tell application "Terminal" to close (get window 1)')
-  reloadTerminalLayout()
-end)
+-- -- Close Terminal window
+-- local closeTerminal = hs.hotkey.new({"cmd"}, "W", function()
+--   hs.applescript('tell application "Terminal" to close (get window 1)')
+--   reloadTerminalLayout()
+-- end)
 
--- Initialize a Terminal window filter
-local terminalWF = hs.window.filter.new("Terminal")
+-- -- Initialize a Terminal window filter
+-- local terminalWF = hs.window.filter.new("Terminal")
 
--- Subscribe to when your Terminal window is focused and unfocused
-terminalWF
-  :subscribe(hs.window.filter.windowFocused, function()
-      -- Enable hotkeys in Terminal
-      newTerminal:enable()
-      closeTerminal:enable()
-  end)
-  :subscribe(hs.window.filter.windowUnfocused, function()
-      -- Disable hotkeys when focusing out of Terminal
-      newTerminal:disable()
-      closeTerminal:disable()
-  end)
+-- -- Subscribe to when your Terminal window is focused and unfocused
+-- terminalWF
+--   :subscribe(hs.window.filter.windowFocused, function()
+--       -- Enable hotkeys in Terminal
+--       newTerminal:enable()
+--       closeTerminal:enable()
+--   end)
+--   :subscribe(hs.window.filter.windowUnfocused, function()
+--       -- Disable hotkeys when focusing out of Terminal
+--       newTerminal:disable()
+--       closeTerminal:disable()
+--   end)
 
 -- ---------------
 -- On Config Reload:
 -- ---------------
 hs.alert.show("Config loaded")
+
+
+-- -----------
+-- Start Loop:
+-- -----------
+
+mainLoop:start()
