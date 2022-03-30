@@ -89,7 +89,6 @@ local function reloadTerminalLayout()
     local terminalLayout = {}
     terminalWindows = hs.application.get("Terminal"):allWindows()
     for i, v in pairs(terminalWindows) do
-      print(Rect(0,(i-1)/#terminalWindows,1/3,1/#terminalWindows))
       table.insert(terminalLayout,{"Terminal", v, laptopScreen, nil, nil, Rect(0,(i-1)/#terminalWindows,1/3,1/#terminalWindows)})
     end
     hs.layout.apply(terminalLayout)
@@ -146,7 +145,8 @@ local function applicationWatcher(appName, eventType, appObject)
       terminalWindows = hs.application.get("Terminal"):allWindows()
       if (secondaryApps==0) then
         hs.application.get("Terminal"):selectMenuItem({"Window", "Bring All to Front"})
-        hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,1/#terminalWindows)}})
+        -- hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,1/#terminalWindows)}})
+        hs.application.get("Finder"):hide()
       end
     elseif (appName == "Trello" or appName == "MongoDB Compass") then
       hs.application.get("Finder"):hide()
@@ -257,6 +257,8 @@ end)
 hs.hotkey.bind({"alt", "ctrl"}, "T", function()
   -- hs.alert.show(hs.window.focusedWindow())
   -- hs.alert.show(getDesktop())
+  hs.applescript('tell application "Visual Studio Code" to make new window')
+
 end)
 
 -- -----------------------------
