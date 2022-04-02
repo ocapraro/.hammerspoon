@@ -39,6 +39,8 @@ else
     {"Messages", nil, laptopScreen, nil, nil, Rect(0,0,2/3,1/2)},
     {"Discord", nil, laptopScreen, nil, nil, Rect(0,1/2,2/3,1/2, true)},
     {"Skype", nil, laptopScreen, nil, nil, Rect(2/3,0,1/3,1, true, true)},
+    {"Obsidian", nil, laptopScreen, nil, nil, Rect(0,0,1,1)},
+    {"Google Chrome", nil, laptopScreen, nil, nil, Rect(0,0,1,1)},
   }
 
   SecondaryAppCodeLayout = {
@@ -235,10 +237,18 @@ end)
 -- Popout Chrome Tab
 hs.hotkey.bind({"alt", "ctrl"}, "C", function()
   if (getDesktop() == 3 or getDesktop() == 4) then
-    local urlSucceded, url = hs.applescript('tell application "Google Chrome" to tell active tab of window 1 to get URL')
-    hs.applescript('tell application "Google Chrome" to tell active tab of window 1 to close')
-    hs.applescript('tell application "Google Chrome" to make new window')
-    hs.applescript('tell application "Google Chrome" to open location "' .. url .. '"')
+    -- local urlSucceded, url = hs.applescript('tell application "Google Chrome" to tell active tab of window 1 to get URL')
+    -- hs.applescript('tell application "Google Chrome" to tell active tab of window 1 to close')
+    -- hs.applescript('tell application "Google Chrome" to make new window')
+    -- hs.applescript('tell application "Google Chrome" to open location "' .. url .. '"')
+    hs.applescript('tell application "System Events" to tell process "Google Chrome" to click menu item "Move Tab to New Window" of menu 1 of menu bar item "Tab" of menu bar 1')
+    chromeExpanded = true
+    local chromeWindows = hs.application.get("Google Chrome"):allWindows()
+    local chromeLayout = {}
+    for ii, vv in pairs(chromeWindows) do
+      table.insert(chromeLayout,{"Google Chrome", vv, laptopScreen, nil, nil, Rect((#chromeWindows-ii)/#chromeWindows,0,1/#chromeWindows,1,true,((ii==1) and true or false))})
+    end
+    hs.layout.apply(chromeLayout)
   end
 end)
 
@@ -250,6 +260,7 @@ hs.hotkey.bind({"alt", "ctrl"}, "X", function()
     -- hs.applescript('tell application "Google Chrome" to make new window')
     sleep(0.1)
     hs.applescript('tell application "Google Chrome" to tell window 1 to open location "' .. url .. '"')
+    hs.layout.apply({{"Google Chrome", nil, laptopScreen, nil, nil, Rect(0,0,1,1)}})
   end
 end)
 
@@ -257,13 +268,18 @@ end)
 hs.hotkey.bind({"alt", "ctrl"}, "T", function()
   -- hs.alert.show(hs.window.focusedWindow())
   -- hs.alert.show(getDesktop())
-  hs.applescript('tell application "Visual Studio Code" to make new window')
-
+  -- hs.applescript('tell application "System Events" to tell process "Code" to click menu item "New Window" of menu 1 of menu bar item "File" of menu bar 1')
 end)
 
 -- -----------------------------
 -- Application Specific HotKeys:
 -- -----------------------------
+
+-- Open VSCode window
+local newCode = hs.hotkey.new({"cmd","shift"}, "N", function()
+  hs.applescript('tell application "System Events" to tell process "Code" to click menu item "New Window" of menu 1 of menu bar item "File" of menu bar 1')
+  hs.layout.apply({{"Code", nil, laptopScreen, nil, nil, Rect(1/3,0,2/3,1)}})
+end)
 
 -- Open Terminal window
 local newTerminal = hs.hotkey.new({"cmd"}, "N", function()
@@ -292,6 +308,20 @@ terminalWF
       -- Disable hotkeys when focusing out of Terminal
       newTerminal:disable()
       closeTerminal:disable()
+  end)
+
+-- Initialize a VS Code window filter
+local vsCodeWF = hs.window.filter.new("Code")
+
+-- Subscribe to when your VS Code window is focused and unfocused
+vsCodeWF
+  :subscribe(hs.window.filter.windowFocused, function()
+      -- Enable hotkeys in VS Code
+      newCode:enable()
+  end)
+  :subscribe(hs.window.filter.windowUnfocused, function()
+      -- Disable hotkeys when focusing out of VS Code
+      newCode:disable()
   end)
 
 -- ---------------
