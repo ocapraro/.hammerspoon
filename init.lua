@@ -269,11 +269,25 @@ hs.hotkey.bind({"alt", "ctrl"}, "T", function()
   -- hs.alert.show(hs.window.focusedWindow())
   -- hs.alert.show(getDesktop())
   -- hs.applescript('tell application "System Events" to tell process "Code" to click menu item "New Window" of menu 1 of menu bar item "File" of menu bar 1')
+  hs.applescript('tell application "Google Chrome" to make new window')
+  hs.layout.apply({{"Google Chrome", nil, laptopScreen, nil, nil, Rect(0,0,1,1)}})
 end)
 
 -- -----------------------------
 -- Application Specific HotKeys:
 -- -----------------------------
+
+-- Open Chrome window
+local newChrome = hs.hotkey.new({"cmd"}, "N", function()
+  hs.applescript('tell application "Google Chrome" to make new window')
+  hs.layout.apply({{"Google Chrome", nil, laptopScreen, nil, nil, Rect(0,0,1,1)}})
+end)
+
+-- Open Chrome Incog window
+local newIncogChrome = hs.hotkey.new({"cmd","shift"}, "N", function()
+  hs.applescript('tell application "System Events" to tell process "Google Chrome" to click menu item "New Incognito Window" of menu 1 of menu bar item "File" of menu bar 1')
+  hs.layout.apply({{"Google Chrome", nil, laptopScreen, nil, nil, Rect(0,0,1,1)}})
+end)
 
 -- Open VSCode window
 local newCode = hs.hotkey.new({"cmd","shift"}, "N", function()
@@ -293,6 +307,22 @@ local closeTerminal = hs.hotkey.new({"cmd"}, "W", function()
   hs.applescript('tell application "Terminal" to close (get window 1)')
   reloadTerminalLayout()
 end)
+
+-- Initialize a Chrome window filter
+local chromeWF = hs.window.filter.new("Google Chrome")
+
+-- Subscribe to when your Chrome window is focused and unfocused
+chromeWF
+  :subscribe(hs.window.filter.windowFocused, function()
+      -- Enable hotkeys in Chrome
+      newChrome:enable()
+      newIncogChrome:enable()
+  end)
+  :subscribe(hs.window.filter.windowUnfocused, function()
+      -- Disable hotkeys when focusing out of Chrome
+      newChrome:disable()
+      newIncogChrome:disable()
+  end)
 
 -- Initialize a Terminal window filter
 local terminalWF = hs.window.filter.new("Terminal")
