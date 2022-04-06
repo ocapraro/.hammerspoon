@@ -271,7 +271,7 @@ hs.hotkey.bind({"alt", "ctrl"}, "P", function()
     local board = hs.pasteboard.getContents()
     local lua_value = JSON:decode(board)
     local pretty_json_text = JSON:encode_pretty(lua_value, nil, 
-            { pretty = true, align_keys = false, array_newline = true, indent = "   " })
+            { pretty = true, align_keys = false, array_newline = true, indent = "  " })
 
     hs.pasteboard.setContents(pretty_json_text)
     hs.eventtap.keyStroke({"cmd"}, "v")
