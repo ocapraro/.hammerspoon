@@ -264,13 +264,28 @@ hs.hotkey.bind({"alt", "ctrl"}, "X", function()
   end
 end)
 
+-- Pretty Paste JSON
+hs.hotkey.bind({"alt", "ctrl"}, "P", function()
+  if not pcall(function ()
+    JSON = require("JSON")
+    local board = hs.pasteboard.getContents()
+    local lua_value = JSON:decode(board)
+    local pretty_json_text = JSON:encode_pretty(lua_value, nil, 
+            { pretty = true, align_keys = false, array_newline = true, indent = "   " })
+
+    hs.pasteboard.setContents(pretty_json_text)
+    hs.eventtap.keyStroke({"cmd"}, "v")
+    hs.pasteboard.setContents(board)
+  end) then
+    hs.alert("Not Proper JSON")
+  end
+end)
+
 -- Tests
 hs.hotkey.bind({"alt", "ctrl"}, "T", function()
   -- hs.alert.show(hs.window.focusedWindow())
   -- hs.alert.show(getDesktop())
   -- hs.applescript('tell application "System Events" to tell process "Code" to click menu item "New Window" of menu 1 of menu bar item "File" of menu bar 1')
-  hs.applescript('tell application "Google Chrome" to make new window')
-  hs.layout.apply({{"Google Chrome", nil, laptopScreen, nil, nil, Rect(0,0,1,1)}})
 end)
 
 -- -----------------------------
