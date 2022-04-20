@@ -130,6 +130,8 @@ local function applicationWatcher(appName, eventType, appObject)
         secondaryApps = 0
         -- Swap to default Layout
         hs.layout.apply(WindowLayout)
+        -- Reload terminal
+        reloadTerminalLayout()
       end
     end
   elseif (eventType == hs.application.watcher.activated) then
