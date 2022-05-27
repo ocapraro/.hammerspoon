@@ -17,8 +17,9 @@ function Rect(x,y,w,h,b,r)
   r=(x+w==1 and true) or false
   return hs.geometry.rect(math.floor(screenWidth*x+padding), math.floor(screenHeight*y+padding+menuBar), math.floor(screenWidth*w-padding-(r and padding or 0)), math.floor(screenHeight*h-padding-((b) and padding or 0)))
 end
-print(Rect(1/3,0,2/3,1))
+
 if (screenWidth>=3000) then
+  -- Monitor Layout
   WindowLayout = {
     {"Code", nil, laptopScreen, nil, nil, Rect(1/3,0,2/3,1)},
     {"Messages", nil, laptopScreen, nil, nil, Rect(1/3,0,1/3,1/2)},
@@ -34,6 +35,7 @@ if (screenWidth>=3000) then
     {"MongoDB Compass", nil, laptopScreen, nil, nil, Rect(0,1/2,1/3,1/2, true)},
   }
 else
+  -- Laptop Layout
   WindowLayout = {
     {"Code", nil, laptopScreen, nil, nil, Rect(1/3,0,2/3,1, true, true)},
     {"Messages", nil, laptopScreen, nil, nil, Rect(0,0,2/3,1/2)},
@@ -57,12 +59,14 @@ end
 -- ----------
 
 local function getDesktop()
-  local discriminators = {"Messages","Code","Google Chrome","Google Chrome"}
+  -- Gets the current Desktop based on what applications are in view
+  local discriminators = {"Discord","Code","Google Chrome","Google Chrome"}
   for i, v in ipairs(discriminators) do
     if (#hs.application.get(v):allWindows()>0) then
       if (not(v=="Google Chrome")) then
         return i
       end
+      -- Since I have Chrome running on multiple Desktops, I diffentiate between them based on the window name
       if (string.find(tostring(hs.application.get(v):allWindows()[1]),"(Person 1)") and true or false) then
         return 3
       else
