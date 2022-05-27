@@ -7,3 +7,4 @@ what I use to manage my Mac windows.
 - `ctrl + alt + C` -> pops out the current chrome tab
 - `ctrl + alt + X` -> returns the current chrome tab
 - `ctrl + alt + P` -> if you have JSON copied, pastes your clipboard as formatted JSON
+- `ctrl + alt + M` -> fullscreens the current window
