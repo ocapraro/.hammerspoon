@@ -155,6 +155,7 @@ local function applicationWatcher(appName, eventType, appObject)
         hs.application.get("Terminal"):selectMenuItem({"Window", "Bring All to Front"})
         -- hs.layout.apply({{"Finder", nil, laptopScreen, nil, nil, Rect(0,0,1/3,1/#terminalWindows)}})
         hs.application.get("Finder"):hide()
+        hs.application.get("Music"):hide()
       end
     elseif (appName == "Trello" or appName == "MongoDB Compass") then
       hs.application.get("Finder"):hide()
